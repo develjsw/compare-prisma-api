@@ -6,14 +6,9 @@ import { UpdateMemberService } from './servicies/update-member.service';
 import { DeleteMemberService } from './servicies/delete-member.service';
 
 @Module({
-  imports: [],
-  controllers: [MemberController],
-  providers: [
-    FindMemberService,
-    CreateMemberService,
-    UpdateMemberService,
-    DeleteMemberService,
-  ],
-  exports: [],
+    imports: [],
+    controllers: [MemberController],
+    providers: [FindMemberService, CreateMemberService, UpdateMemberService, DeleteMemberService],
+    exports: []
 })
 export class MemberModule {}
