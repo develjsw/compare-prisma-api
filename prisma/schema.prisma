@@ -8,11 +8,73 @@ datasource db {
 }
 
 model member {
-  member_id   Int     @id @default(autoincrement()) @db.UnsignedInt
-  member_name String? @db.VarChar(150)
-  email       String? @db.VarChar(150)
+  member_id   Int       @id @default(autoincrement()) @db.UnsignedInt
+  member_name String?   @db.VarChar(150)
+  email       String?   @db.VarChar(150)
+  created_at  DateTime  @db.DateTime(0)
+  updated_at  DateTime? @db.DateTime(0)
+  order       order[]
 }
 
 model order {
-  order_id Int @id @default(autoincrement()) @db.UnsignedInt
+  order_id          Int            @id @default(autoincrement()) @db.UnsignedInt
+  member_id         Int            @db.UnsignedInt
+  total_order_price Int            @default(0) @db.UnsignedInt
+  order_status      String         @default("PENDING") @db.VarChar(10)
+  created_at        DateTime       @db.DateTime(0)
+  updated_at        DateTime?      @db.DateTime(0)
+  member            member         @relation(fields: [member_id], references: [member_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_order_member")
+  order_detail      order_detail[]
+  payment           payment[]
+
+  @@index([member_id], map: "FK_order_member")
+}
+
+model goods {
+  goods_id     Int            @id @default(autoincrement()) @db.UnsignedInt
+  goods_name   String?        @db.VarChar(100)
+  goods_price  Int            @default(0)
+  created_at   DateTime       @db.DateTime(0)
+  updated_at   DateTime?      @db.DateTime(0)
+  order_detail order_detail[]
+}
+
+model order_detail {
+  order_detail_id Int   @id @default(autoincrement()) @db.UnsignedInt
+  order_id        Int   @db.UnsignedInt
+  goods_id        Int   @db.UnsignedInt
+  quantity        Int   @default(0) @db.UnsignedTinyInt
+  order_price     Int   @default(0) @db.UnsignedInt
+  goods           goods @relation(fields: [goods_id], references: [goods_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_order_detail_goods")
+  order           order @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_order_detail_order")
+
+  @@index([goods_id], map: "FK_order_detail_goods")
+  @@index([order_id], map: "FK_order_detail_order")
+}
+
+model payment {
+  payment_id     Int       @id @default(autoincrement()) @db.UnsignedInt
+  order_id       Int       @db.UnsignedInt
+  payment_price  Int       @default(0) @db.UnsignedInt
+  payment_method String    @db.VarChar(10)
+  payment_status String    @default("PENDING") @db.VarChar(10)
+  created_at     DateTime  @db.DateTime(0)
+  updated_at     DateTime? @db.DateTime(0)
+  order          order     @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_payment_order")
+  refund         refund[]
+
+  @@index([order_id], map: "FK_payment_order")
+}
+
+model refund {
+  refund_id     Int       @id @default(autoincrement()) @db.UnsignedInt
+  payment_id    Int       @db.UnsignedInt
+  refund_price  Int       @default(0)
+  refund_status String    @default("REQUEST") @db.VarChar(10)
+  refund_reason String?   @db.VarChar(100)
+  created_at    DateTime  @db.DateTime(0)
+  updated_at    DateTime? @db.DateTime(0)
+  payment       payment   @relation(fields: [payment_id], references: [payment_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_refund_payment")
+
+  @@index([payment_id], map: "FK_refund_payment")
 }

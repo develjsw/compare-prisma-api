@@ -57,7 +57,8 @@ export class MemberController {
     @Post()
     @UsePipes(new ValidationPipe({ transform: true }))
     async createMember(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
-        return await this.createMemberService.createMember(createMemberDto);
+        const created_at = new Date();
+        return await this.createMemberService.createMember({ ...createMemberDto, created_at });
     }
 
     @Patch(':member_id')
